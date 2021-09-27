@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
+using AplicacionEmpleados.Models;
 
 namespace AplicacionEmpleados.Controllers
 {
@@ -35,6 +36,86 @@ namespace AplicacionEmpleados.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+
+            }
+            return new JsonResult(table);
+        }
+        [HttpPost]
+        public JsonResult Post(Department dep)
+        {
+            string query = @"
+                   insert into dbo.Department
+                    values(@DepartmentName)
+                    ";
+
+            DataTable table = new DataTable();
+            string sqlDataSource = _configuration.GetConnectionString("EmployeeAppController");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@DepartmentName", dep.DepartmentName);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+
+            }
+            return new JsonResult(table);
+        }
+            [HttpPut]
+            public JsonResult Put(Department dep)
+            {
+                string query = @"
+                   update dbo.Department
+                    set DepartmentName = @DepartmentName
+                    where DepartmentId = @DepartmentId
+                    ";
+
+                DataTable table = new DataTable();
+                string sqlDataSource = _configuration.GetConnectionString("EmployeeAppController");
+                SqlDataReader myReader;
+                using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+                {
+                    myCon.Open();
+                    using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                    {
+                        myCommand.Parameters.AddWithValue("@DepartmentId", dep.DepartmentId);
+                        myCommand.Parameters.AddWithValue("@DepartmentName", dep.DepartmentName);
+                        myReader = myCommand.ExecuteReader();
+                        table.Load(myReader);
+                        myReader.Close();
+                        myCon.Close();
+                    }
+
+                }
+                return new JsonResult(table);
+            }
+        [HttpDelete ("{id}")]
+        public JsonResult Delete(int id)
+        {
+            string query = @"
+                   delete from dbo.Department
+                    where DepartmentId = @DepartmentId
+                    ";
+
+            DataTable table = new DataTable();
+            string sqlDataSource = _configuration.GetConnectionString("EmployeeAppController");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@DepartmentId", id);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
