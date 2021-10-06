@@ -12,5 +12,6 @@ namespace AplicacionEmpleados.Models
         public string Department { get; set; }
         public string DateOfJoining { get; set; }
         public string PhotoFileName { get; set; }
+        public string DepartmentId { get; set; }
     }
 }

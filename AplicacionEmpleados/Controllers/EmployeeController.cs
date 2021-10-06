@@ -13,10 +13,10 @@ namespace AplicacionEmpleados.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DepartmentController : ControllerBase
+    public class EmployeeController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        public DepartmentController(IConfiguration configuration)
+        public EmployeeController(IConfiguration configuration)
         {
             _configuration = configuration;
         } 
@@ -24,8 +24,10 @@ namespace AplicacionEmpleados.Controllers
        public JsonResult Get()
         {
             string query = @"
-                   select DepartmentId, DepartmentName from 
-                    dbo.Department
+                   select EmployeeId, EmployeeName , DepartmentId,
+                    convert(varchar(10), DateOfJoining,120) as DateOfJoining,PhotoFileName
+                    from
+                    dbo.Employee
                     ";
 
             DataTable table = new DataTable();
@@ -46,12 +48,12 @@ namespace AplicacionEmpleados.Controllers
             return new JsonResult(table);
         }
         [HttpPost]
-        public JsonResult Post(Department dep)
+        public JsonResult Post(Employee emp)
         {
             string query = @"
-                   insert into dbo.Department
-                    (DepartmentName)
-                    values(@DepartmentName)
+                   insert into dbo.Employee
+                   (EmployeeName, Department, DateOfJoining,PhotoFileName, DepartmentId)
+             values(@EmployeeName, @Department, @DateOfJoining, @PhotoFileName, @DepartmentId)
                     ";
 
             DataTable table = new DataTable();
@@ -62,7 +64,11 @@ namespace AplicacionEmpleados.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
-                    myCommand.Parameters.AddWithValue("@DepartmentName", dep.DepartmentName);
+                    myCommand.Parameters.AddWithValue("@EmployeeName", emp.EmployeeName);
+                    myCommand.Parameters.AddWithValue("@Department", emp.Department);
+                    myCommand.Parameters.AddWithValue("@DateOfJoining", emp.DateOfJoining);
+                    myCommand.Parameters.AddWithValue("@PhotoFileName", emp.PhotoFileName);
+                    myCommand.Parameters.AddWithValue("@DepartmentId", emp.DepartmentId);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
@@ -73,14 +79,18 @@ namespace AplicacionEmpleados.Controllers
             return new JsonResult(table);
         }
             [HttpPut]
-            public JsonResult Put(Department dep)
+            public JsonResult Put(Employee emp)
             {
                 string query = @"
-                   update dbo.Department
-                    set DepartmentName = @DepartmentName
-                    where DepartmentId = @DepartmentId
+                   update dbo.Employee
+                    set EmployeeName = @EmployeeName,
+                    Department = @Department,
+                    DateOfJoining = @DateOfJoining,
+                    PhotoFileName = @PhotoFileName,
+                    DepartmentId = @DepartmentId
+                    where EmployeeId = @EmployeeId
                     ";
-
+                
                 DataTable table = new DataTable();
                 string sqlDataSource = _configuration.GetConnectionString("EmployeeAppController");
                 SqlDataReader myReader;
@@ -89,8 +99,12 @@ namespace AplicacionEmpleados.Controllers
                     myCon.Open();
                     using (SqlCommand myCommand = new SqlCommand(query, myCon))
                     {
-                        myCommand.Parameters.AddWithValue("@DepartmentId", dep.DepartmentId);
-                        myCommand.Parameters.AddWithValue("@DepartmentName", dep.DepartmentName);
+                        myCommand.Parameters.AddWithValue("@EmployeeId", emp.EmployeeId);
+                        myCommand.Parameters.AddWithValue("@EmployeeName", emp.EmployeeName);
+                        myCommand.Parameters.AddWithValue("@Department", emp.Department);
+                        myCommand.Parameters.AddWithValue("@DateOfJoining", emp.DateOfJoining);
+                        myCommand.Parameters.AddWithValue("@PhotoFileName", emp.PhotoFileName);
+                        myCommand.Parameters.AddWithValue("@DepartmentId", emp.DepartmentId);
                         myReader = myCommand.ExecuteReader();
                         table.Load(myReader);
                         myReader.Close();
@@ -104,8 +118,8 @@ namespace AplicacionEmpleados.Controllers
         public JsonResult Delete(int id)
         {
             string query = @"
-                   delete from dbo.Department
-                    where DepartmentId = @DepartmentId
+                   delete from dbo.Employee
+                    where EmployeeId = @EmployeeId
                     ";
 
             DataTable table = new DataTable();
@@ -116,7 +130,7 @@ namespace AplicacionEmpleados.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
-                    myCommand.Parameters.AddWithValue("@DepartmentId", id);
+                    myCommand.Parameters.AddWithValue("@EmployeeId", id);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
@@ -124,7 +138,6 @@ namespace AplicacionEmpleados.Controllers
                 }
 
             }
-            
             return new JsonResult(table);
         }
 
